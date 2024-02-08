@@ -19,6 +19,7 @@ public class Confirmation {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String token;
+
     @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate
     private LocalDateTime createdAt;

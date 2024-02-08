@@ -1,5 +1,6 @@
 package com.practice.servingemail.service.impl;
 
+import com.practice.servingemail.domain.Confirmation;
 import com.practice.servingemail.domain.User;
 import com.practice.servingemail.repo.ConfirmationRepo;
 import com.practice.servingemail.repo.UserRepo;
@@ -20,11 +21,20 @@ public class UserServiceImpl implements UserService {
         user.setEnable(false);
         userRepo.save(user);
 
-        return null;
+        Confirmation confirmation = new Confirmation(user);
+        confirmationRepo.save(confirmation);
+
+
+        return user;
     }
 
     @Override
     public Boolean verifyToken(String token) {
-        return null;
+        Confirmation confirmation = confirmationRepo.findByToken(token);
+        User user = userRepo.findByEmailIgnoreCase(confirmation.getUser().getEmail());
+        if(user == null) throw new RuntimeException("No user exists by that token!");
+        user.setEnable(true);
+        userRepo.save(user);
+        return Boolean.TRUE;
     }
 }
