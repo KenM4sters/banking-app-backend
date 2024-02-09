@@ -11,10 +11,13 @@ import org.springframework.mail.javamail.MimeMailMessage;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.io.File;
 
 import static com.practice.servingemail.utils.EmailUtils.getEmailMsg;
+import static com.practice.servingemail.utils.EmailUtils.getVerificationUrl;
 
 
 @Service
@@ -22,6 +25,8 @@ import static com.practice.servingemail.utils.EmailUtils.getEmailMsg;
 public class EmailServiceImpl implements EmailService {
     public static final String VERIFY_YOUR_ACCOUNT = "Verify Your Account";
     public static final String UTF_8 = "UTF-8";
+    public static final String EMAIL_TEMPLATE = "email_template";
+    private final TemplateEngine templateEngine;
 
     @Value("${spring.mail.verify.host}")
     private String host;
@@ -112,8 +117,25 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     @Async
-    public void sendHtml(String from, String to, String token) {
-
+    public void sendHtml(String name, String to, String token) {
+        try {
+            Context context = new Context();
+            context.setVariable("name", name);
+            context.setVariable("url", getVerificationUrl(host, token));
+            String textMsg = templateEngine.process(EMAIL_TEMPLATE, context);
+            MimeMessage message = getMimeMsg();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF_8);
+            helper.setPriority(1);
+            helper.setSubject(VERIFY_YOUR_ACCOUNT);
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setText(textMsg, true);
+            // Send message
+            emailSender.send(message);
+        } catch (Exception exception) {
+            System.out.println(exception);
+            throw new RuntimeException(exception.getMessage());
+        }
     }
 
     @Override
