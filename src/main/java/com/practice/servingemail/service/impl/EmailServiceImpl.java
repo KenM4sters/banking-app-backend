@@ -79,15 +79,36 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     @Async
-    public void sendMimeMsgWithEmbeddedImage(String from, String to, String token) {
-
-    }
-
-    @Override
-    @Async
     public void sendMimeMsgWithEmbeddedFile(String from, String to, String token) {
+        try {
+            MimeMessage message = getMimeMsg();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, UTF_8);
+            helper.setPriority(1);
+            helper.setSubject(VERIFY_YOUR_ACCOUNT);
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setText(getEmailMsg(from, host, token));
 
+            // Attachments
+            FileSystemResource img_1 = new FileSystemResource(new File(System.getProperty("user.home") + "/Desktop/images/ac_revelations.jpg"));
+            FileSystemResource img_2 = new FileSystemResource(new File(System.getProperty("user.home") + "/Desktop/images/halo_reach.jpg"));
+            FileSystemResource img_3 = new FileSystemResource(new File(System.getProperty("user.home") + "/Desktop/images/gow_3.png"));
+
+            if(img_1.getFilename() != null && img_2.getFilename() != null && img_3.getFilename() != null) {
+                helper.addInline(getContentId(img_1.getFilename()), img_1);
+                helper.addInline(getContentId(img_3.getFilename()), img_2);
+                helper.addInline(getContentId(img_3.getFilename()), img_3);
+            } else {
+                throw new RuntimeException("Failed to retrieve images: returned null");
+            }
+            // Send message
+            emailSender.send(message);
+        } catch (Exception exception) {
+            System.out.println(exception);
+            throw new RuntimeException(exception.getMessage());
+        }
     }
+
 
     @Override
     @Async
@@ -102,5 +123,9 @@ public class EmailServiceImpl implements EmailService {
     }
     private MimeMessage getMimeMsg() {
         return emailSender.createMimeMessage();
+    }
+
+    private String getContentId(String fileName) {
+        return "<" + fileName + ">";
     }
 }
