@@ -5,6 +5,7 @@ public interface EmailService {
     void sendMimeMsgWithEmbeddedAttachment(String from, String to, String token);
     void sendMimeMsgWithEmbeddedFile(String from, String to, String token);
     void sendHtml(String from, String to, String token);
+    void sendHtmlWithAttachment(String from, String to, String token);
     void sendHtmlWithEmbeddedFile(String from, String to, String token);
 
 
