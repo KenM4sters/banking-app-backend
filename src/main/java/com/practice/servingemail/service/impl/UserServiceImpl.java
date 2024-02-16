@@ -7,6 +7,8 @@ import com.practice.servingemail.repo.UserRepo;
 import com.practice.servingemail.service.EmailService;
 import com.practice.servingemail.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,6 +32,28 @@ public class UserServiceImpl implements UserService {
 //        emailService.sendMimeMsgWithEmbeddedFile(user.getName(), user.getEmail(), confirmation.getToken());
 //        emailService.sendHtml(user.getName(), user.getEmail(), confirmation.getToken());
         emailService.sendHtmlWithEmbeddedFile(user.getName(), user.getEmail(), confirmation.getToken());
+        return user;
+    }
+
+    @Override
+    public Object loginUser(String Email, String password) {
+        User user = userRepo.findByEmailIgnoreCase(Email);
+        if(user != null) {
+            if(password.equals(user.getPassword())) {
+                return user;
+            } else  {
+                return "Incorrect password!";
+            }
+        } else {
+            return "User doesn't exist - creating new user";
+        }
+    }
+
+    @Override
+    public User updateUser(String email,int transactionValue) {
+        User user = userRepo.findByEmailIgnoreCase(email);
+        user.setCardBalance(user.cardBalance + transactionValue);
+        userRepo.save(user);
         return user;
     }
 

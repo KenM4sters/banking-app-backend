@@ -32,7 +32,23 @@ public class UserController {
                 );
     };
 
-    @GetMapping
+    @PutMapping
+    public ResponseEntity<HttpResponse> updateUserMembers(@RequestParam("email") String email,
+                                                          @RequestParam("transactionValue") int transactionValue) {
+        User updatedUser = userService.updateUser(email, transactionValue);
+        return ResponseEntity.created(URI.create(""))
+                .body(HttpResponse
+                        .builder()
+                        .timeStamp(LocalDateTime.now().toString())
+                        .data(Map.of("user", updatedUser))
+                        .message("user updated")
+                        .status(HttpStatus.CREATED)
+                        .statusCode(HttpStatus.CREATED.value())
+                        .build()
+                );
+    };
+
+    @GetMapping()
     public ResponseEntity<HttpResponse> confirmNewUserAcc(@RequestParam("token") String token) {
         Boolean isSuccess = userService.verifyToken(token);
         return ResponseEntity.ok()
@@ -47,4 +63,9 @@ public class UserController {
                 );
     };
 
+    @GetMapping("/user")
+    public ResponseEntity<Object> getUser(@RequestParam("email") String email,
+                                        @RequestParam("password") String password ) {
+        return ResponseEntity.ok().body(userService.loginUser(email, password));
+    }
 }

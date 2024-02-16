@@ -17,9 +17,12 @@ import lombok.experimental.SuperBuilder;
 public class User {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String name;
-    private String email;
-    private String password;
-    private boolean isEnable;
+    public String name;
+    public String email;
+    public String password;
+    private int cardNumber = 123456789;
+    public int cardBalance;
+    public boolean isEnable;
+
 
 }
